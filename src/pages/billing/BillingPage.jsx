@@ -29,7 +29,7 @@ import BillingRedux from './BillingRedux';
  * @param {Object} props.methods - Object mapping paths to method names
  * @param {ReactNode} props.children - Child components to render (Routes)
  */
-const ProjectMethodLayout = ({ title, subtitle, methods, children }) => {
+const ProjectMethodLayout = ({ title, subtitle, methods, basePath, children }) => {
     // useLocation hook - Get current location information from React Router
     // This hook provides access to location object with pathname, search, hash, etc.
     const location = useLocation();
@@ -53,7 +53,7 @@ const ProjectMethodLayout = ({ title, subtitle, methods, children }) => {
                         <li className="nav-item" key={path}>
                             {/* NavLink with conditional active class */}
                             <NavLink 
-                                to={path} 
+                                to={`${basePath}/${path}`} 
                                 className={`nav-link ${currentPath === path ? 'active' : ''}`}
                             >
                                 {name}
@@ -105,6 +105,7 @@ const BillingPage = () => {
             title="Billing System" 
             subtitle="Invoice management with item addition, discount application, and total calculations."
             methods={methods}
+            basePath="/billing"
         >
             {/* Nested Routes - Each route renders different state management implementation */}
             <Routes>

@@ -34,9 +34,14 @@ const BlogRedux = () => {
   // useDispatch Hook - Get dispatch function to send actions to Redux store
   const reduxDispatch = useDispatch();
   
-  // useState for form input - local component state
+  // useState for form inputs - local component state
   // Form state doesn't need to be global, so useState is appropriate here
   const [title, setTitle] = useState('');
+  const [content, setContent] = useState('');
+  const [category, setCategory] = useState('');
+  
+  // Available categories for the dropdown
+  const categories = ['Technology', 'Lifestyle', 'Business', 'Health', 'Education', 'Entertainment'];
   
   // Get notification function from context
   const showNotification = useNotification();
@@ -47,12 +52,14 @@ const BlogRedux = () => {
    */
   const handleAddPost = () => { 
     // Input validation
-    if (title.trim()) { 
+    if (title.trim() && content.trim() && category) { 
       // Dispatch 'addPost' action to Redux store
       // Action creator automatically creates proper action object
       reduxDispatch(addPost({ 
         id: Date.now(), // Simple ID generation
         title: title.trim(),
+        content: content.trim(),
+        category: category,
         createdAt: new Date().toISOString() // Add timestamp
       })); 
       
@@ -60,9 +67,11 @@ const BlogRedux = () => {
       showNotification('Post added successfully!'); 
       
       // Clear local form state
-      setTitle(''); 
+      setTitle('');
+      setContent('');
+      setCategory('');
     } else {
-      showNotification('Please enter a post title!');
+      showNotification('Please fill in all fields (title, content, and category)!');
     }
   };
   
@@ -113,10 +122,11 @@ const BlogRedux = () => {
           )}
         </div>
         <div className="card-body">
-          {/* Bootstrap Input Group */}
-          <div className="input-group mb-3">
-            {/* Controlled Input - local state managed by useState */}
+          {/* Title Input */}
+          <div className="mb-3">
+            <label htmlFor="title" className="form-label">Post Title</label>
             <input 
+              id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               onKeyPress={handleKeyPress}
@@ -124,16 +134,45 @@ const BlogRedux = () => {
               className="form-control"
               type="text"
             />
-            
-            {/* Submit Button */}
-            <button 
-              onClick={handleAddPost} 
-              className="btn btn-primary"
-              disabled={!title.trim()}
-            >
-              Add Post
-            </button>
           </div>
+
+          {/* Category Dropdown */}
+          <div className="mb-3">
+            <label htmlFor="category" className="form-label">Category</label>
+            <select 
+              id="category"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="form-select"
+            >
+              <option value="">Select a category...</option>
+              {categories.map(cat => (
+                <option key={cat} value={cat}>{cat}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Content Textarea */}
+          <div className="mb-3">
+            <label htmlFor="content" className="form-label">Content</label>
+            <textarea 
+              id="content"
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              placeholder="Enter post content..."
+              className="form-control"
+              rows="4"
+            />
+          </div>
+
+          {/* Submit Button */}
+          <button 
+            onClick={handleAddPost} 
+            className="btn btn-primary w-100"
+            disabled={!title.trim() || !content.trim() || !category}
+          >
+            Add Post
+          </button>
         </div>
       </div>
       
@@ -148,38 +187,41 @@ const BlogRedux = () => {
         <div className="card-body">
           {/* Conditional Rendering - data comes from Redux store */}
           {posts.length > 0 ? (
-            <ul className="list-group list-group-flush">
+            <div className="row">
               {/* Map through posts from Redux store */}
               {posts.map(post => (
-                <li 
-                  key={post.id}
-                  className="list-group-item d-flex justify-content-between align-items-center"
-                >
-                  <div>
-                    {/* Post Title */}
-                    <span className="fw-medium">{post.title}</span>
-                    {/* Post Metadata */}
-                    <div className="small text-muted">
-                      ID: {post.id}
-                      {post.createdAt && (
-                        <span className="ms-2">
-                          Created: {new Date(post.createdAt).toLocaleString()}
-                        </span>
-                      )}
+                <div key={post.id} className="col-md-6 mb-3">
+                  <div className="card h-100">
+                    <div className="card-header d-flex justify-content-between align-items-center">
+                      <h5 className="card-title mb-0">{post.title}</h5>
+                      <div>
+                        <span className="badge bg-primary me-2">{post.category}</span>
+                        <button
+                          onClick={() => handleDeletePost(post.id)}
+                          className="btn btn-outline-danger btn-sm"
+                          title="Delete post"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    </div>
+                    <div className="card-body">
+                      <p className="card-text">{post.content}</p>
+                    </div>
+                    <div className="card-footer">
+                      <small className="text-muted">
+                        ID: {post.id}
+                        {post.createdAt && (
+                          <span className="ms-2">
+                            Created: {new Date(post.createdAt).toLocaleString()}
+                          </span>
+                        )}
+                      </small>
                     </div>
                   </div>
-                  
-                  {/* Delete Button */}
-                  <button
-                    onClick={() => handleDeletePost(post.id)}
-                    className="btn btn-outline-danger btn-sm"
-                    title="Delete post"
-                  >
-                    ✕
-                  </button>
-                </li>
+                </div>
               ))}
-            </ul>
+            </div>
           ) : (
             /* Empty State */
             <div className="text-center text-muted py-4">

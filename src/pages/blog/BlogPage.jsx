@@ -4,7 +4,7 @@ import BlogUseState from './BlogUseState';
 import BlogUseReducer from './BlogUseReducer';
 import BlogRedux from './BlogRedux';
 
-const ProjectMethodLayout = ({ title, subtitle, methods, children }) => {
+const ProjectMethodLayout = ({ title, subtitle, methods, basePath, children }) => {
     const location = useLocation();
     const currentPath = location.pathname.split('/').pop();
     
@@ -16,7 +16,7 @@ const ProjectMethodLayout = ({ title, subtitle, methods, children }) => {
                 <ul className="nav nav-tabs mb-3">
                     {Object.entries(methods).map(([path, name]) => (
                         <li className="nav-item" key={path}>
-                            <NavLink to={path} className={`nav-link ${currentPath === path ? 'active' : ''}`}>{name}</NavLink>
+                            <NavLink to={`${basePath}/${path}`} className={`nav-link ${currentPath === path ? 'active' : ''}`}>{name}</NavLink>
                         </li>
                     ))}
                 </ul>
@@ -29,7 +29,7 @@ const ProjectMethodLayout = ({ title, subtitle, methods, children }) => {
 const BlogPage = () => {
     const methods = { useState: 'useState', useReducer: 'useReducer', redux: 'Redux' };
     return (
-        <ProjectMethodLayout title="Blog Application" subtitle="Manage a list of posts." methods={methods}>
+        <ProjectMethodLayout title="Blog Application" subtitle="Manage a list of posts." methods={methods} basePath="/blog">
             <Routes>
                 <Route path="useState" element={<BlogUseState />} />
                 <Route path="useReducer" element={<BlogUseReducer />} />

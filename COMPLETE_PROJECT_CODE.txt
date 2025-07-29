@@ -1,0 +1,2817 @@
+==============================================
+REACT FRONTEND DEMO - COMPLETE PROJECT CODE
+==============================================
+College Assignment - React State Management Showcase
+Student: [Your Name]
+Date: July 29, 2025
+Location: Dabhoi, Gujarat, India
+
+==============================================
+PROJECT OVERVIEW
+==============================================
+
+This is a comprehensive React application demonstrating various state management patterns:
+1. useState Hook - For simple state management
+2. useReducer Hook - For complex state logic  
+3. Redux Toolkit - For global state management
+4. Context API - For cross-component communication
+
+The project includes practical examples:
+- Registration System (Form handling)
+- Blog Management (CRUD operations)
+- Billing System (Invoice calculations)
+- Shopping Cart (E-commerce functionality)
+
+==============================================
+PROJECT STRUCTURE
+==============================================
+
+react-frontend-demo/
+├── public/
+│   └── vite.svg
+├── src/
+│   ├── App.css
+│   ├── App.jsx
+│   ├── index.css
+│   ├── main.jsx
+│   ├── assets/
+│   │   └── react.svg
+│   ├── context/
+│   │   └── NotificationContext.jsx
+│   ├── pages/
+│   │   ├── HomePage.jsx
+│   │   ├── registration/
+│   │   │   └── RegistrationPage.jsx
+│   │   ├── blog/
+│   │   │   ├── BlogPage.jsx
+│   │   │   ├── BlogUseState.jsx
+│   │   │   ├── BlogUseReducer.jsx
+│   │   │   └── BlogRedux.jsx
+│   │   ├── billing/
+│   │   │   ├── BillingPage.jsx
+│   │   │   ├── BillingUseState.jsx
+│   │   │   ├── BillingUseReducer.jsx
+│   │   │   └── BillingRedux.jsx
+│   │   └── cart/
+│   │       ├── CartPage.jsx
+│   │       ├── CartUseState.jsx
+│   │       ├── CartUseReducer.jsx
+│   │       └── CartRedux.jsx
+│   └── store/
+│       ├── store.jsx
+│       ├── blogSlice.jsx
+│       ├── billingSlice.jsx
+│       └── cartSlice.jsx
+├── CONCEPTS_EXPLAINED.md
+├── README.md
+├── package.json
+├── vite.config.js
+├── eslint.config.js
+└── index.html
+
+==============================================
+1. PACKAGE.JSON - PROJECT DEPENDENCIES
+==============================================
+
+{
+  "name": "react-frontend-demo",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@reduxjs/toolkit": "^2.8.2",
+    "bootstrap": "^5.3.7",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-redux": "^9.2.0",
+    "react-router-dom": "^7.7.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.30.1",
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "@vitejs/plugin-react": "^4.6.0",
+    "eslint": "^9.30.1",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.20",
+    "globals": "^16.3.0",
+    "vite": "^7.0.4"
+  }
+}
+
+==============================================
+2. INDEX.HTML - ENTRY POINT
+==============================================
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vite + React</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
+
+==============================================
+3. VITE.CONFIG.JS - BUILD CONFIGURATION
+==============================================
+
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+
+// https://vite.dev/config/
+export default defineConfig({
+  plugins: [react()],
+})
+
+==============================================
+4. ESLINT.CONFIG.JS - CODE LINTING
+==============================================
+
+import js from '@eslint/js'
+import globals from 'globals'
+import reactHooks from 'eslint-plugin-react-hooks'
+import reactRefresh from 'eslint-plugin-react-refresh'
+import { defineConfig, globalIgnores } from 'eslint/config'
+
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{js,jsx}'],
+    extends: [
+      js.configs.recommended,
+      reactHooks.configs['recommended-latest'],
+      reactRefresh.configs.vite,
+    ],
+    languageOptions: {
+      ecmaVersion: 2020,
+      globals: globals.browser,
+      parserOptions: {
+        ecmaVersion: 'latest',
+        ecmaFeatures: { jsx: true },
+        sourceType: 'module',
+      },
+    },
+    rules: {
+      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
+    },
+  },
+])
+
+==============================================
+5. SRC/MAIN.JSX - APPLICATION ENTRY
+==============================================
+
+// Import React's StrictMode for development checks and warnings
+import { StrictMode } from 'react'
+// Import createRoot from React 18's new root API for rendering
+import { createRoot } from 'react-dom/client'
+// Import global CSS styles for the application
+import './index.css'
+// Import Redux Provider to connect React app with Redux store
+import { Provider } from 'react-redux';
+// Import configured Redux store
+import { store } from './store/store';
+// Import Bootstrap CSS for styling and responsive design
+import 'bootstrap/dist/css/bootstrap.min.css';
+// Import main App component
+import App from './App';
+
+/**
+ * Application Entry Point - main.jsx
+ * 
+ * Key Concepts Demonstrated:
+ * 1. React 18 Root API - Modern way to mount React applications
+ * 2. StrictMode - Development mode checks for React best practices
+ * 3. Redux Provider - Makes Redux store available to all components
+ * 4. Provider Pattern - Higher-order component pattern for dependency injection
+ * 5. CSS Imports - Global styling with Bootstrap integration
+ * 
+ * Provider Hierarchy:
+ * StrictMode (Development checks)
+ *   └── Redux Provider (Global state)
+ *       └── NotificationProvider (Inside App.jsx)
+ *           └── BrowserRouter (Inside App.jsx)
+ *               └── Application Components
+ */
+
+// Create React root using React 18's new createRoot API
+// This replaces the legacy ReactDOM.render() method
+// Benefits: Better performance, concurrent features, automatic batching
+createRoot(document.getElementById('root')).render(
+  // StrictMode enables additional checks and warnings in development
+  // - Helps identify unsafe lifecycles, deprecated APIs, and side effects
+  // - Only runs in development mode, no impact on production
+  <StrictMode>
+    {/* Redux Provider makes store available to all child components */}
+    {/* Any component can now use useSelector and useDispatch hooks */}
+    <Provider store={store}>
+      {/* Main App component - contains all application logic and routing */}
+      <App />
+    </Provider>
+  </StrictMode>,
+)
+
+==============================================
+6. SRC/APP.JSX - MAIN APPLICATION COMPONENT
+==============================================
+
+// Import React library for creating components
+import React from 'react';
+// Import React Router components for client-side routing
+import { BrowserRouter, Routes, Route, NavLink } from 'react-router-dom';
+// Import notification context provider for global notification system
+import { NotificationProvider } from './context/NotificationContext';
+
+// Import all page components for different sections of the application
+import HomePage from './pages/HomePage';
+import RegistrationPage from './pages/registration/RegistrationPage';
+import BlogPage from './pages/blog/BlogPage';
+import BillingPage from './pages/billing/BillingPage';
+import CartPage from './pages/cart/CartPage';
+
+/**
+ * Main App Component - Root component of the application
+ * 
+ * Key Concepts Demonstrated:
+ * 1. React Router - Client-side routing for single-page application
+ * 2. Context Provider Pattern - Wrapping app with global state providers
+ * 3. Component composition - Building app from smaller, reusable components
+ * 4. Navigation structure - Creating consistent navigation across pages
+ * 5. Bootstrap integration - Using Bootstrap classes for responsive design
+ * 
+ * Application Architecture:
+ * - Provider pattern for global state (notifications)
+ * - Route-based navigation for different state management examples
+ * - Consistent layout with navigation bar
+ * - Modular page components for different features
+ */
+function App() {
+  return (
+    // NotificationProvider wraps entire app to provide notification functionality
+    // This allows any component to show notifications using useNotification hook
+    <NotificationProvider>
+      {/* BrowserRouter enables client-side routing using HTML5 history API */}
+      <BrowserRouter>
+        {/* Navigation Bar - Consistent across all pages */}
+        <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
+          <div className="container-fluid">
+            {/* Brand/Logo - NavLink to home page */}
+            <NavLink className="navbar-brand" to="/">
+              React State Showcase
+            </NavLink>
+            
+            {/* Navigation Links */}
+            <div className="navbar-nav">
+              {/* Registration Page - Form handling example */}
+              <NavLink className="nav-link" to="/registration">
+                Registration
+              </NavLink>
+              
+              {/* Blog Page - Defaults to useState example */}
+              <NavLink className="nav-link" to="/blog/useState">
+                Blog
+              </NavLink>
+              
+              {/* Billing Page - Defaults to useState example */}
+              <NavLink className="nav-link" to="/billing/useState">
+                Billing
+              </NavLink>
+              
+              {/* Cart Page - Defaults to useState example */}
+              <NavLink className="nav-link" to="/cart/useState">
+                Shopping Cart
+              </NavLink>
+            </div>
+          </div>
+        </nav>
+        
+        {/* Main Content Area */}
+        <main className="container my-4">
+          {/* Routes Configuration - Defines which component renders for each URL */}
+          <Routes>
+            {/* Home Route - Wildcard catches root and undefined paths */}
+            <Route path="/*" element={<HomePage />} />
+            
+            {/* Registration Route - Form handling demonstration */}
+            <Route path="/registration" element={<RegistrationPage />} />
+            
+            {/* Blog Routes - Nested routing handled within BlogPage */}
+            <Route path="/blog/*" element={<BlogPage />} />
+            
+            {/* Billing Routes - Nested routing handled within BillingPage */}
+            <Route path="/billing/*" element={<BillingPage />} />
+            
+            {/* Cart Routes - Nested routing handled within CartPage */}
+            <Route path="/cart/*" element={<CartPage />} />
+          </Routes>
+        </main>
+      </BrowserRouter>
+    </NotificationProvider>
+  );
+}
+
+// Export App component as default export
+// This component will be mounted to DOM in main.jsx
+export default App;
+
+==============================================
+7. SRC/CONTEXT/NOTIFICATIONCONTEXT.JSX
+==============================================
+
+// Import React hooks and context API for creating global state
+import React, { createContext, useState, useContext, useEffect } from 'react';
+
+/**
+ * Notification Context - Global State Management for User Notifications
+ * 
+ * React Context API Concepts Demonstrated:
+ * 1. createContext - Creates context object for sharing data
+ * 2. useContext - Hook to consume context values
+ * 3. Provider pattern - Component that provides context value to children
+ * 4. Custom hooks - Encapsulating context logic for reusability
+ * 5. useEffect - Managing side effects (auto-hide notifications)
+ * 
+ * Context API Benefits:
+ * - Avoid prop drilling (passing props through multiple levels)
+ * - Global state accessible from any component
+ * - Built into React (no external library needed)
+ * - Simpler than Redux for basic global state needs
+ */
+
+// Create notification context object
+// This will hold the notification state and functions
+// Initially undefined - will be provided by NotificationProvider
+const NotificationContext = createContext();
+
+/**
+ * Custom Hook for Using Notification Context
+ * 
+ * This encapsulates the useContext call and provides better error handling
+ * Usage: const showNotification = useNotification();
+ * 
+ * @returns {Function} showNotification function to display notifications
+ */
+export const useNotification = () => {
+  // useContext hook connects component to NotificationContext
+  // Returns the value provided by NotificationProvider
+  const context = useContext(NotificationContext);
+  
+  // Error handling: ensure hook is used within provider
+  if (context === undefined) {
+    throw new Error('useNotification must be used within a NotificationProvider');
+  }
+  
+  return context;
+};
+
+/**
+ * Notification Provider Component
+ * 
+ * This component provides notification functionality to all child components
+ * It manages notification state and rendering logic
+ * 
+ * @param {Object} props - Component props
+ * @param {ReactNode} props.children - Child components that can access notifications
+ */
+export const NotificationProvider = ({ children }) => {
+  // Local state for current notification message
+  // null means no notification is currently shown
+  const [notification, setNotification] = useState(null);
+
+  // useEffect hook for auto-hiding notifications
+  // Runs whenever notification state changes
+  useEffect(() => {
+    // If there's a notification, set timer to hide it
+    if (notification) {
+      // setTimeout creates timer to clear notification after 3 seconds
+      const timer = setTimeout(() => {
+        setNotification(null);
+      }, 3000);
+      
+      // Cleanup function: clear timer if component unmounts or notification changes
+      // This prevents memory leaks and unexpected behavior
+      return () => clearTimeout(timer);
+    }
+  }, [notification]); // Dependency array: effect runs when notification changes
+
+  /**
+   * Function to show notification
+   * This function will be passed to child components via context
+   * 
+   * @param {string} message - Message to display in notification
+   */
+  const showNotification = (message) => {
+    setNotification(message);
+  };
+
+  return (
+    // Provider component makes showNotification function available to all children
+    <NotificationContext.Provider value={showNotification}>
+      {/* Render all child components */}
+      {children}
+      
+      {/* Conditional Rendering: Show notification if one exists */}
+      {notification && (
+        <div 
+          className="alert alert-success position-fixed bottom-0 end-0 m-3 shadow-lg" 
+          style={{ zIndex: 1050 }} 
+          role="alert"
+        >
+          {/* Display the notification message */}
+          {notification}
+        </div>
+      )}
+    </NotificationContext.Provider>
+  );
+};
+
+==============================================
+8. SRC/PAGES/HOMEPAGE.JSX
+==============================================
+
+// Import React library for creating components
+import React from 'react';
+
+/**
+ * HomePage Component
+ * Landing page that introduces the React State Management showcase application
+ * 
+ * Key Concepts Demonstrated:
+ * 1. Functional component with JSX
+ * 2. Bootstrap utility classes for styling
+ * 3. Semantic HTML structure
+ * 4. Typography and spacing utilities
+ * 5. Static content presentation
+ * 
+ * Design Purpose:
+ * - Welcome users to the application
+ * - Explain the educational purpose
+ * - Provide navigation guidance
+ * - Set context for learning objectives
+ * 
+ * Educational Value:
+ * - Introduces three state management approaches
+ * - Explains when to use each method
+ * - Provides context for comparison learning
+ */
+const HomePage = () => {
+    // Get current date and time for dynamic content
+    const currentDateTime = new Date().toLocaleString('en-IN', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        timeZone: 'Asia/Kolkata',
+        timeZoneName: 'short'
+    });
+    
+    // JSX Return - Homepage Structure
+    return (
+        <div className="container-fluid">
+            {/* Hero Section */}
+            <div className="text-center p-5 bg-light rounded-3 mb-4">
+                <h1 className="display-4 fw-bold text-primary">
+                    React State Management Showcase
+                </h1>
+                <p className="lead mb-4">
+                    Explore different state management techniques through practical examples
+                </p>
+                <p className="text-muted fst-italic">
+                    Current time: {currentDateTime} | Location: Dabhoi, Gujarat, India
+                </p>
+            </div>
+            
+            {/* Introduction Section */}
+            <div className="row g-4 mb-4">
+                <div className="col-md-8 mx-auto">
+                    <div className="card">
+                        <div className="card-body text-center">
+                            <h3 className="card-title">Learning Objectives</h3>
+                            <p className="card-text">
+                                This application demonstrates three fundamental approaches to state management in React:
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            {/* State Management Methods Cards */}
+            <div className="row g-4 mb-4">
+                {/* useState Card */}
+                <div className="col-md-4">
+                    <div className="card h-100 border-primary">
+                        <div className="card-header bg-primary text-white">
+                            <h5 className="mb-0">useState</h5>
+                        </div>
+                        <div className="card-body">
+                            <p className="card-text">
+                                <strong>Best for:</strong> Simple, independent state variables
+                            </p>
+                            <ul className="list-unstyled">
+                                <li>✓ Form inputs</li>
+                                <li>✓ Toggle states</li>
+                                <li>✓ Simple counters</li>
+                                <li>✓ Basic data lists</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                {/* useReducer Card */}
+                <div className="col-md-4">
+                    <div className="card h-100 border-success">
+                        <div className="card-header bg-success text-white">
+                            <h5 className="mb-0">useReducer</h5>
+                        </div>
+                        <div className="card-body">
+                            <p className="card-text">
+                                <strong>Best for:</strong> Complex state logic with multiple related updates
+                            </p>
+                            <ul className="list-unstyled">
+                                <li>✓ State machines</li>
+                                <li>✓ Complex forms</li>
+                                <li>✓ Multiple state transitions</li>
+                                <li>✓ Predictable updates</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                {/* Redux Card */}
+                <div className="col-md-4">
+                    <div className="card h-100 border-warning">
+                        <div className="card-header bg-warning text-dark">
+                            <h5 className="mb-0">Redux Toolkit</h5>
+                        </div>
+                        <div className="card-body">
+                            <p className="card-text">
+                                <strong>Best for:</strong> Global state shared across components
+                            </p>
+                            <ul className="list-unstyled">
+                                <li>✓ Cross-component data</li>
+                                <li>✓ Complex applications</li>
+                                <li>✓ Time-travel debugging</li>
+                                <li>✓ State persistence</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            {/* Examples Section */}
+            <div className="row g-4">
+                <div className="col-md-8 mx-auto">
+                    <div className="card">
+                        <div className="card-body">
+                            <h4 className="card-title text-center mb-4">Practical Examples</h4>
+                            <div className="row text-center">
+                                <div className="col-md-4">
+                                    <div className="mb-3">
+                                        <i className="bi bi-journal-text display-6 text-primary"></i>
+                                        <h6 className="mt-2">Blog System</h6>
+                                        <small className="text-muted">CRUD operations for posts</small>
+                                    </div>
+                                </div>
+                                <div className="col-md-4">
+                                    <div className="mb-3">
+                                        <i className="bi bi-receipt display-6 text-success"></i>
+                                        <h6 className="mt-2">Billing System</h6>
+                                        <small className="text-muted">Invoice with calculations</small>
+                                    </div>
+                                </div>
+                                <div className="col-md-4">
+                                    <div className="mb-3">
+                                        <i className="bi bi-cart display-6 text-warning"></i>
+                                        <h6 className="mt-2">Shopping Cart</h6>
+                                        <small className="text-muted">E-commerce functionality</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            {/* Getting Started Section */}
+            <div className="row g-4 mt-4">
+                <div className="col-md-10 mx-auto">
+                    <div className="alert alert-info">
+                        <h5 className="alert-heading">🚀 Getting Started</h5>
+                        <p className="mb-2">
+                            Use the navigation bar above to explore different examples. Each section shows the same 
+                            functionality implemented with different state management approaches.
+                        </p>
+                        <hr />
+                        <p className="mb-0">
+                            <strong>Tip:</strong> Try switching between tabs within each section to compare 
+                            how the same features are implemented with different state management patterns.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// Export component as default export for use in main App routing
+export default HomePage;
+
+==============================================
+9. SRC/PAGES/REGISTRATION/REGISTRATIONPAGE.JSX
+==============================================
+
+// Import React library and useState hook for state management
+import React, { useState } from 'react';
+// Import custom notification hook from context
+import { useNotification } from '../../context/NotificationContext';
+
+/**
+ * RegistrationPage Component
+ * Demonstrates form handling with local state management and context integration
+ * 
+ * Key React Concepts Demonstrated:
+ * 1. useState Hook - Managing form state
+ * 2. Custom Hook - useNotification from Context API
+ * 3. Controlled Components - Form inputs controlled by React state
+ * 4. Event Handling - onChange and onSubmit events
+ * 5. Object State Updates - Using spread operator for immutable updates
+ * 6. Form Validation - HTML5 validation with required attributes
+ * 7. Context Consumer - Using context without prop drilling
+ * 
+ * State Management Pattern: useState (Local State)
+ * - Simple form state with two fields
+ * - Direct state updates using setState
+ * - Form reset after submission
+ * 
+ * Educational Value:
+ * - Shows how to handle form data in React
+ * - Demonstrates context API usage for notifications
+ * - Example of controlled vs uncontrolled components
+ * - Form validation and user feedback patterns
+ */
+const RegistrationPage = () => {
+  // State Declaration: Local component state for user form data
+  // Using object state to group related form fields together
+  // Initial state: empty form with name and email fields
+  const [user, setUser] = useState({ 
+    name: '',    // User's full name
+    email: ''    // User's email address
+  });
+  
+  // Context Hook: Get notification function from NotificationContext
+  // This demonstrates consuming context without prop drilling
+  // showNotification is a function that displays toast notifications
+  const showNotification = useNotification();
+  
+  /**
+   * Handle Input Changes
+   * Generic change handler for all form inputs
+   * 
+   * Key Concepts:
+   * - Event object destructuring to get target properties
+   * - Dynamic property names using computed property syntax
+   * - Immutable state updates using spread operator
+   * - Controlled component pattern
+   * 
+   * @param {Event} e - The change event from input element
+   */
+  const handleChange = (e) => {
+    // Destructure name and value from the input element
+    const { name, value } = e.target;
+    
+    // Update state immutably using spread operator
+    // [name] creates a dynamic property key based on input's name attribute
+    setUser(prevUser => ({
+      ...prevUser,     // Spread existing user data
+      [name]: value    // Update only the changed field
+    }));
+  };
+  
+  /**
+   * Handle Form Submission
+   * Processes the registration form when submitted
+   * 
+   * Key Concepts:
+   * - Preventing default form submission behavior
+   * - Context API usage for cross-component communication
+   * - Form state reset after successful submission
+   * - User feedback through notifications
+   * 
+   * @param {Event} e - The submit event from form element
+   */
+  const handleSubmit = (e) => {
+    // Prevent default form submission (page reload)
+    e.preventDefault();
+    
+    // Show success notification using context
+    // Template literal for dynamic message content
+    showNotification(`User Registered: ${user.name}`, 'success');
+    
+    // Reset form state to initial empty values
+    // This clears the form after successful submission
+    setUser({ 
+      name: '', 
+      email: '' 
+    });
+  };
+  
+  // JSX Return: Registration form UI
+  return (
+    <div className="card shadow-sm">
+      <div className="card-body">
+        {/* Form Header */}
+        <h2 className="card-title mb-4">Registration Form</h2>
+        
+        {/* Registration Form */}
+        <form onSubmit={handleSubmit} className="row g-3">
+          {/* Name Input Field */}
+          <div className="col-md">
+            <input 
+              name="name"                    // Name attribute for dynamic state updates
+              value={user.name}              // Controlled component - value from state
+              placeholder="Full Name"        // User guidance
+              onChange={handleChange}        // Change handler for state updates
+              required                       // HTML5 validation
+              className="form-control"       // Bootstrap styling
+              type="text"                    // Input type specification
+              autoComplete="name"            // Browser autocomplete hint
+              maxLength="50"                 // Input length limitation
+            />
+          </div>
+          
+          {/* Email Input Field */}
+          <div className="col-md">
+            <input 
+              name="email"                   // Name attribute for dynamic state updates
+              value={user.email}             // Controlled component - value from state
+              type="email"                   // HTML5 email validation
+              placeholder="Email Address"    // User guidance
+              onChange={handleChange}        // Change handler for state updates
+              required                       // HTML5 validation
+              className="form-control"       // Bootstrap styling
+              autoComplete="email"           // Browser autocomplete hint
+              maxLength="100"                // Input length limitation
+            />
+          </div>
+          
+          {/* Submit Button */}
+          <div className="col-md-auto">
+            <button 
+              type="submit"                  // Form submission trigger
+              className="btn btn-primary"    // Bootstrap primary button styling
+              disabled={!user.name.trim() || !user.email.trim()} // Disable if fields empty
+            >
+              Register User
+            </button>
+          </div>
+        </form>
+        
+        {/* Form Help Text */}
+        <div className="mt-3">
+          <small className="text-muted">
+            <strong>Note:</strong> This form demonstrates basic React form handling with 
+            useState for local state management and Context API for notifications.
+          </small>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Export component as default export for routing
+export default RegistrationPage;
+
+==============================================
+10. SRC/STORE/STORE.JSX - REDUX STORE
+==============================================
+
+// Import configureStore from Redux Toolkit for creating Redux store
+// configureStore is an enhanced version of createStore with good defaults
+import { configureStore } from '@reduxjs/toolkit';
+
+// Import all reducer functions from their respective slices
+// Each slice handles a specific domain of application state
+import blogReducer from './blogSlice';
+import billingReducer from './billingSlice';
+import cartReducer from './cartSlice';
+
+/**
+ * Redux Store Configuration
+ * 
+ * Redux Store Concepts Demonstrated:
+ * 1. configureStore - Redux Toolkit's store creator with built-in middleware
+ * 2. Reducer combination - Multiple slices combined into root reducer
+ * 3. State structure - Organized by feature domains
+ * 4. Middleware integration - Built-in thunk, devtools, and serialization checks
+ * 
+ * Store Benefits:
+ * - Centralized state management
+ * - Predictable state updates through actions and reducers
+ * - Time-travel debugging with Redux DevTools
+ * - Middleware support for async operations
+ * - Hot reloading support in development
+ */
+
+// Create and configure Redux store
+export const store = configureStore({
+  // Reducer configuration - combines multiple slice reducers
+  reducer: {
+    // Each key becomes a slice of the global state
+    // State structure: { blog: {...}, billing: {...}, cart: {...} }
+    
+    // Blog slice - handles blog posts CRUD operations
+    blog: blogReducer,
+    
+    // Billing slice - handles billing/invoice management
+    billing: billingReducer,
+    
+    // Cart slice - handles shopping cart operations
+    cart: cartReducer,
+  },
+  
+  // configureStore automatically includes:
+  // - redux-thunk middleware for async actions
+  // - Redux DevTools Extension integration
+  // - Serialization and immutability checks in development
+  // - Default middleware for better DX (Developer Experience)
+});
+
+==============================================
+11. SRC/STORE/BLOGSLICE.JSX - REDUX SLICE
+==============================================
+
+// Import createSlice from Redux Toolkit for creating Redux slice
+import { createSlice } from '@reduxjs/toolkit';
+
+/**
+ * Blog Slice - Redux Toolkit Slice for Blog Posts State Management
+ * 
+ * Redux Slice Concepts Demonstrated:
+ * 1. createSlice - Combines actions and reducers in one place
+ * 2. Immer integration - Allows "mutative" syntax for immutable updates
+ * 3. Auto-generated action creators and action types
+ * 4. Structured state management with initial state
+ * 5. Multiple reducer functions for different operations
+ * 
+ * Slice Benefits:
+ * - Reduces Redux boilerplate code significantly
+ * - Built-in Immer for simpler state updates
+ * - Automatic action creator generation  
+ * - TypeScript-friendly with better intellisense
+ * - Standardized Redux patterns
+ */
+const blogSlice = createSlice({
+  // Slice name - used to identify this slice in the Redux store
+  // Creates action types like 'blog/addPost', 'blog/deletePost'
+  name: 'blog',
+  
+  // Initial state for blog slice
+  // Structure: { posts: [] } where posts is array of blog post objects
+  initialState: { 
+    posts: [
+      { 
+        id: 1, 
+        title: 'First Post (from Redux)',
+        createdAt: new Date().toISOString()
+      }
+    ]
+  },
+  
+  // Reducer functions - define how state updates in response to actions
+  // Each function automatically becomes an action creator
+  reducers: {
+    /**
+     * Add post reducer
+     * Adds new blog post to the posts array
+     * 
+     * @param {Object} state - Current blog state
+     * @param {Object} action - Action object with payload containing new post
+     */
+    addPost: (state, action) => {
+      // Immer allows direct mutation syntax (actually creates immutable update)
+      // This is equivalent to: return { ...state, posts: [...state.posts, action.payload] }
+      state.posts.push(action.payload);
+    },
+    
+    /**
+     * Delete post reducer
+     * Removes blog post by ID from the posts array
+     * 
+     * @param {Object} state - Current blog state
+     * @param {Object} action - Action object with payload containing post ID to delete
+     */
+    deletePost: (state, action) => {
+      // Filter out the post with matching ID
+      // Immer handles immutability automatically
+      state.posts = state.posts.filter(post => post.id !== action.payload.id);
+    },
+    
+    /**
+     * Update post reducer
+     * Updates existing blog post with new data
+     * 
+     * @param {Object} state - Current blog state
+     * @param {Object} action - Action object with payload: { id, updates }
+     */
+    updatePost: (state, action) => {
+      // Find post by ID and update it
+      const postIndex = state.posts.findIndex(post => post.id === action.payload.id);
+      if (postIndex !== -1) {
+        // Merge existing post data with updates
+        state.posts[postIndex] = { 
+          ...state.posts[postIndex], 
+          ...action.payload.updates,
+          updatedAt: new Date().toISOString()
+        };
+      }
+    },
+    
+    /**
+     * Clear all posts reducer
+     * Removes all blog posts from the array
+     * 
+     * @param {Object} state - Current blog state
+     */
+    clearPosts: (state) => {
+      // Reset posts array to empty
+      state.posts = [];
+    },
+    
+    /**
+     * Set posts reducer
+     * Replaces entire posts array (useful for loading data from API)
+     * 
+     * @param {Object} state - Current blog state
+     * @param {Object} action - Action object with payload containing new posts array
+     */
+    setPosts: (state, action) => {
+      state.posts = action.payload;
+    }
+  },
+});
+
+// Export action creators
+// These are automatically generated by createSlice based on reducer names
+// Usage: dispatch(addPost(newPost)) or dispatch(deletePost({ id: 1 }))
+export const { 
+  addPost, 
+  deletePost, 
+  updatePost, 
+  clearPosts, 
+  setPosts 
+} = blogSlice.actions;
+
+// Export reducer function
+// This will be used in store configuration to combine with other reducers
+// The reducer handles all actions defined in the reducers object above
+export default blogSlice.reducer;
+
+==============================================
+12. SRC/PAGES/BLOG/BLOGPAGE.JSX
+==============================================
+
+import React from 'react';
+import { Routes, Route, NavLink, useLocation } from 'react-router-dom';
+import BlogUseState from './BlogUseState';
+import BlogUseReducer from './BlogUseReducer';
+import BlogRedux from './BlogRedux';
+
+const ProjectMethodLayout = ({ title, subtitle, methods, children }) => {
+    const location = useLocation();
+    const currentPath = location.pathname.split('/').pop();
+    
+    return (
+        <div className="card shadow-sm">
+            <div className="card-body">
+                <h2 className="card-title">{title}</h2>
+                <p className="card-subtitle mb-3 text-muted">{subtitle}</p>
+                <ul className="nav nav-tabs mb-3">
+                    {Object.entries(methods).map(([path, name]) => (
+                        <li className="nav-item" key={path}>
+                            <NavLink to={path} className={`nav-link ${currentPath === path ? 'active' : ''}`}>{name}</NavLink>
+                        </li>
+                    ))}
+                </ul>
+                {children}
+            </div>
+        </div>
+    );
+};
+
+const BlogPage = () => {
+    const methods = { useState: 'useState', useReducer: 'useReducer', redux: 'Redux' };
+    return (
+        <ProjectMethodLayout title="Blog Application" subtitle="Manage a list of posts." methods={methods}>
+            <Routes>
+                <Route path="useState" element={<BlogUseState />} />
+                <Route path="useReducer" element={<BlogUseReducer />} />
+                <Route path="redux" element={<BlogRedux />} />
+            </Routes>
+        </ProjectMethodLayout>
+    );
+};
+
+export default BlogPage;
+
+==============================================
+13. SRC/PAGES/BLOG/BLOGUSESTATE.JSX
+==============================================
+
+// Import React library and useState hook for basic state management
+import React, { useState } from 'react';
+// Import custom notification context hook for showing user feedback
+import { useNotification } from '../../context/NotificationContext';
+
+/**
+ * BlogUseState Component
+ * Demonstrates blog post management using useState hook
+ * 
+ * Key Concepts Demonstrated:
+ * 1. useState for managing multiple state variables
+ * 2. Form handling with controlled components
+ * 3. Array state updates with spread operator
+ * 4. Input validation and user feedback
+ * 5. Dynamic list rendering with map()
+ * 
+ * State Management Pattern:
+ * - posts: Array of blog posts (complex state)
+ * - title: String for form input (simple state)
+ * - Separate useState calls for independent state variables
+ */
+const BlogUseState = () => {
+    // useState for blog posts array - stores all blog posts
+    // Initial state includes one sample post to demonstrate existing data
+    const [posts, setPosts] = useState([
+        { id: 1, title: 'First Post (useState)' }
+    ]);
+    
+    // useState for form input - controlled component pattern
+    // This creates a controlled input where React manages the input value
+    const [title, setTitle] = useState('');
+    
+    // Get notification function from context for user feedback
+    const showNotification = useNotification();
+    
+    /**
+     * Function to add new blog post
+     * Demonstrates form validation, state update, and user feedback
+     */
+    const handleAddPost = () => { 
+        // Input validation - check if title is not empty
+        if (title.trim()) { 
+            // Update posts array using functional state update
+            // Spread operator creates new array (immutability principle)
+            setPosts(currentPosts => [
+                ...currentPosts, 
+                { 
+                    id: Date.now(), // Simple ID generation using timestamp
+                    title: title.trim() // Remove whitespace from title
+                }
+            ]); 
+            
+            // Show success notification to user
+            showNotification('Post added successfully!'); 
+            
+            // Clear form input after successful submission
+            setTitle(''); 
+        } else {
+            // Show error notification for empty input
+            showNotification('Please enter a post title!');
+        }
+    };
+    
+    /**
+     * Handle Enter key press for better UX
+     * Allows users to submit form by pressing Enter
+     */
+    const handleKeyPress = (e) => {
+        if (e.key === 'Enter') {
+            handleAddPost();
+        }
+    };
+    
+    // JSX Return - Component Rendering
+    return (
+        <div className="container-fluid">
+            {/* Form Section - Add New Post */}
+            <div className="card mb-4">
+                <div className="card-header">
+                    <h4 className="mb-0">Add New Blog Post</h4>
+                </div>
+                <div className="card-body">
+                    {/* Bootstrap Input Group for styled form */}
+                    <div className="input-group mb-3">
+                        {/* Controlled Input Component */}
+                        <input 
+                            value={title} // Controlled by React state
+                            onChange={(e) => setTitle(e.target.value)} // Update state on change
+                            onKeyPress={handleKeyPress} // Handle Enter key
+                            placeholder="Enter post title..." 
+                            className="form-control"
+                            type="text"
+                        />
+                        
+                        {/* Submit Button */}
+                        <button 
+                            onClick={handleAddPost} 
+                            className="btn btn-primary"
+                            disabled={!title.trim()} // Disable if no title
+                        >
+                            Add Post
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            {/* Posts Display Section */}
+            <div className="card">
+                <div className="card-header">
+                    <h4 className="mb-0">Blog Posts ({posts.length})</h4>
+                </div>
+                <div className="card-body">
+                    {/* Conditional Rendering - Show posts or empty message */}
+                    {posts.length > 0 ? (
+                        /* List Group for displaying posts */
+                        <ul className="list-group list-group-flush">
+                            {/* Map through posts array to render each post */}
+                            {posts.map(post => (
+                                <li 
+                                    key={post.id} // Unique key for React reconciliation
+                                    className="list-group-item d-flex justify-content-between align-items-center"
+                                >
+                                    {/* Post Title */}
+                                    <span className="fw-medium">{post.title}</span>
+                                    
+                                    {/* Post Metadata */}
+                                    <small className="text-muted">
+                                        ID: {post.id}
+                                    </small>
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        /* Empty State Message */
+                        <div className="text-center text-muted py-4">
+                            <p>No blog posts yet. Add your first post above!</p>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// Export component as default export for use in other parts of the application
+export default BlogUseState;
+
+==============================================
+14. SRC/PAGES/CART/CARTPAGE.JSX
+==============================================
+
+import React from 'react';
+import { Routes, Route, NavLink, useLocation } from 'react-router-dom';
+import CartUseState from './CartUseState';
+import CartUseReducer from './CartUseReducer';
+import CartRedux from './CartRedux';
+
+const ProjectMethodLayout = ({ title, subtitle, methods, children }) => {
+    const location = useLocation();
+    const currentPath = location.pathname.split('/').pop();
+    
+    return (
+        <div className="card shadow-sm">
+            <div className="card-body">
+                <h2 className="card-title">{title}</h2>
+                <p className="card-subtitle mb-3 text-muted">{subtitle}</p>
+                <ul className="nav nav-tabs mb-3">
+                    {Object.entries(methods).map(([path, name]) => (
+                        <li className="nav-item" key={path}>
+                            <NavLink to={path} className={`nav-link ${currentPath === path ? 'active' : ''}`}>{name}</NavLink>
+                        </li>
+                    ))}
+                </ul>
+                {children}
+            </div>
+        </div>
+    );
+};
+
+const CartPage = () => {
+    const methods = { useState: 'useState', useReducer: 'useReducer', redux: 'Redux' };
+    return (
+        <ProjectMethodLayout title="Shopping Cart" subtitle="A complete cart example." methods={methods}>
+            <Routes>
+                <Route path="useState" element={<CartUseState />} />
+                <Route path="useReducer" element={<CartUseReducer />} />
+                <Route path="redux" element={<CartRedux />} />
+            </Routes>
+        </ProjectMethodLayout>
+    );
+};
+export default CartPage;
+
+==============================================
+15. SRC/PAGES/CART/CARTUSESTATE.JSX
+==============================================
+
+// Import React library and useState hook for basic state management
+import React, { useState } from 'react';
+// Import custom notification context hook for showing user feedback
+import { useNotification } from '../../context/NotificationContext';
+
+// Static product data - In real application, this would come from API/database
+const products = [
+  { id: 1, name: 'Laptop', price: 1200 }, 
+  { id: 2, name: 'Mouse', price: 25 }
+];
+
+/**
+ * CartUseState Component
+ * Demonstrates shopping cart functionality using useState hook
+ * 
+ * Key Concepts Demonstrated:
+ * 1. useState for simple state management
+ * 2. Functional state updates with current state access
+ * 3. Immutable state updates using spread operator
+ * 4. Array methods: find(), map(), filter()
+ * 5. Context API integration for notifications
+ * 
+ * When to use useState vs useReducer:
+ * - useState: Simple state, single values, straightforward updates
+ * - useReducer: Complex state logic, multiple sub-values, state transitions
+ */
+const CartUseState = () => {
+  // useState Hook for cart state management
+  // Syntax: const [state, setState] = useState(initialValue)
+  // cart: Current state value (array of cart items)
+  // setCart: Function to update the state
+  const [cart, setCart] = useState([]);
+  
+  // Get notification function from context
+  // This demonstrates Context API usage for cross-component communication
+  const showNotification = useNotification();
+  
+  /**
+   * Function to add product to cart
+   * Uses functional state update to access current state safely
+   * 
+   * @param {Object} product - Product object to add to cart
+   */
+  const addToCart = (product) => { 
+    // Functional state update - receives current state as parameter
+    setCart(currentCart => { 
+      // Check if item already exists in cart using find method
+      const existingItem = currentCart.find(item => item.id === product.id); 
+      
+      // If item exists, increment its quantity by 1
+      if (existingItem) {
+        return currentCart.map(item => 
+          item.id === product.id 
+            ? { ...item, qty: item.qty + 1 }  // Spread operator for immutability
+            : item
+        );
+      }
+      
+      // If item doesn't exist, add new item with quantity 1
+      return [...currentCart, { ...product, qty: 1 }]; 
+    }); 
+    
+    // Show user feedback using notification context
+    showNotification(`${product.name} added to cart!`); 
+  };
+  
+  /**
+   * Function to update item quantity in cart
+   * Uses functional state update for safe state manipulation
+   * 
+   * @param {number} id - Product ID to update
+   * @param {number} amount - Amount to change quantity by (+1 or -1)
+   */
+  const updateQuantity = (id, amount) => { 
+    setCart(currentCart => 
+      currentCart
+        .map(item => 
+          item.id === id 
+            ? { ...item, qty: item.qty + amount }  // Update quantity
+            : item
+        )
+        .filter(item => item.qty > 0)  // Remove items with quantity 0 or less
+    ); 
+  };
+  
+  // Calculate total price using reduce method
+  // reduce() is a functional programming concept for aggregating array values
+  const total = cart.reduce((accumulator, item) => accumulator + (item.price * item.qty), 0);
+  
+  // JSX Return - Component Rendering
+  return (
+    <div className="row g-4">
+      {/* Left Column - Products Display */}
+      <div className="col-lg-8">
+        <h3>Available Products</h3>
+        
+        {/* Bootstrap Grid System for Responsive Product Cards */}
+        <div className="row row-cols-1 row-cols-md-2 g-4">
+          {/* Map through products array to render each product */}
+          {products.map(product => (
+            <div className="col" key={product.id}>
+              {/* Bootstrap Card Component for Product Display */}
+              <div className="card h-100 text-center">
+                <div className="card-body d-flex flex-column justify-content-between">
+                  {/* Product Information */}
+                  <h5 className="card-title">{product.name}</h5>
+                  <p className="card-text text-muted">${product.price}</p>
+                  
+                  {/* Add to Cart Button with onClick Event Handler */}
+                  <button 
+                    onClick={() => addToCart(product)} 
+                    className="btn btn-primary"
+                  >
+                    Add to Cart
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+      
+      {/* Right Column - Shopping Cart Display */}
+      <div className="col-lg-4">
+        <div className="card bg-light">
+          <div className="card-body">
+            <h3 className="card-title">Shopping Cart</h3>
+            
+            {/* Cart Items List */}
+            <ul className="list-group list-group-flush">
+              {/* Conditional Rendering: Show cart items if cart has items */}
+              {cart.map(item => (
+                <li key={item.id} className="list-group-item bg-transparent">
+                  {/* Item Name and Total Price */}
+                  <div className="d-flex justify-content-between fw-bold">
+                    <span>{item.name}</span>
+                    <span>${(item.price * item.qty).toFixed(2)}</span>
+                  </div>
+                  
+                  {/* Item Details and Quantity Controls */}
+                  <div className="d-flex justify-content-between align-items-center text-muted small">
+                    <span>${item.price} x {item.qty}</span>
+                    
+                    {/* Quantity Control Buttons */}
+                    <div className="btn-group btn-group-sm">
+                      {/* Decrease Quantity Button */}
+                      <button 
+                        onClick={() => updateQuantity(item.id, -1)} 
+                        className="btn btn-outline-secondary"
+                      >
+                        -
+                      </button>
+                      
+                      {/* Increase Quantity Button */}
+                      <button 
+                        onClick={() => updateQuantity(item.id, 1)} 
+                        className="btn btn-outline-secondary"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                </li>
+              ))}
+              
+              {/* Conditional Rendering: Show empty cart message if no items */}
+              {cart.length === 0 && (
+                <p className="text-muted">Your cart is empty.</p>
+              )}
+            </ul>
+            
+            {/* Cart Summary Section */}
+            <hr />
+            <ul className="list-unstyled mb-0">
+              {/* Subtotal Calculation */}
+              <li className="d-flex justify-content-between">
+                <span>Subtotal:</span> 
+                <span>${total.toFixed(2)}</span>
+              </li>
+              
+              {/* Tax Calculation (10% of subtotal) */}
+              <li className="d-flex justify-content-between">
+                <span>Tax (10%):</span> 
+                <span>${(total * 0.1).toFixed(2)}</span>
+              </li>
+              
+              {/* Final Total (Subtotal + Tax) */}
+              <li className="d-flex justify-content-between fw-bold fs-5 mt-2">
+                <span>Total:</span> 
+                <span>${(total * 1.1).toFixed(2)}</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Export component as default export for use in other parts of the application
+// This follows ES6 module system for component reusability
+export default CartUseState;
+
+==============================================
+16. SRC/PAGES/BILLING/BILLINGPAGE.JSX - COMPLETE
+==============================================
+
+// Import React library for creating components
+import React from 'react';
+// Import React Router components for nested routing and navigation
+import { Routes, Route, NavLink, useLocation } from 'react-router-dom';
+// Import billing components demonstrating different state management approaches
+import BillingUseState from './BillingUseState';
+import BillingUseReducer from './BillingUseReducer';
+import BillingRedux from './BillingRedux';
+
+/**
+ * ProjectMethodLayout Component
+ * Reusable layout component for displaying different state management methods
+ * 
+ * Key Concepts Demonstrated:
+ * 1. Component composition and reusability
+ * 2. Props pattern for customizable components
+ * 3. useLocation hook for current route detection
+ * 4. Dynamic navigation with active state management
+ * 5. Bootstrap tabs for method switching
+ * 
+ * Design Pattern:
+ * - Layout component wraps different implementation methods
+ * - Provides consistent UI across all method demonstrations
+ * - Handles navigation state and active tab highlighting
+ * 
+ * @param {Object} props - Component props
+ * @param {string} props.title - Main title for the section
+ * @param {string} props.subtitle - Descriptive subtitle
+ * @param {Object} props.methods - Object mapping paths to method names
+ * @param {ReactNode} props.children - Child components to render (Routes)
+ */
+const ProjectMethodLayout = ({ title, subtitle, methods, children }) => {
+    // useLocation hook - Get current location information from React Router
+    // This hook provides access to location object with pathname, search, hash, etc.
+    const location = useLocation();
+    
+    // Extract current path segment to determine active tab
+    // pathname example: "/billing/useState" -> currentPath: "useState"
+    const currentPath = location.pathname.split('/').pop();
+    
+    // JSX Return - Layout Structure
+    return (
+        <div className="card shadow-sm">
+            <div className="card-body">
+                {/* Section Header */}
+                <h2 className="card-title">{title}</h2>
+                <p className="card-subtitle mb-3 text-muted">{subtitle}</p>
+                
+                {/* Navigation Tabs */}
+                <ul className="nav nav-tabs mb-3">
+                    {/* Dynamic tab generation from methods object */}
+                    {Object.entries(methods).map(([path, name]) => (
+                        <li className="nav-item" key={path}>
+                            {/* NavLink with conditional active class */}
+                            <NavLink 
+                                to={path} 
+                                className={`nav-link ${currentPath === path ? 'active' : ''}`}
+                            >
+                                {name}
+                            </NavLink>
+                        </li>
+                    ))}
+                </ul>
+                
+                {/* Content Area - Renders child components (Routes) */}
+                {children}
+            </div>
+        </div>
+    );
+};
+
+/**
+ * BillingPage Component
+ * Main routing component for billing system demonstrations
+ * 
+ * Key Concepts Demonstrated:
+ * 1. Nested routing with React Router
+ * 2. Component reusability with ProjectMethodLayout
+ * 3. Route configuration for different implementations
+ * 4. Consistent user experience across state management methods
+ * 
+ * Educational Purpose:
+ * - Allows users to compare different state management approaches
+ * - Same business logic (billing) implemented with different patterns
+ * - Demonstrates when to use useState vs useReducer vs Redux
+ * 
+ * Routing Structure:
+ * /billing/useState    -> BillingUseState component
+ * /billing/useReducer  -> BillingUseReducer component  
+ * /billing/redux       -> BillingRedux component
+ */
+const BillingPage = () => {
+    // Methods configuration - maps route paths to display names
+    // This object drives both navigation tabs and route definitions
+    const methods = { 
+        useState: 'useState',       // Simple state management
+        useReducer: 'useReducer',   // Complex state logic
+        redux: 'Redux'              // Global state management
+    };
+    
+    // JSX Return - Page Structure
+    return (
+        // Use ProjectMethodLayout for consistent UI
+        <ProjectMethodLayout 
+            title="Billing System" 
+            subtitle="Invoice management with item addition, discount application, and total calculations."
+            methods={methods}
+        >
+            {/* Nested Routes - Each route renders different state management implementation */}
+            <Routes>
+                {/* useState Route - Simple state management approach */}
+                <Route 
+                    path="useState" 
+                    element={<BillingUseState />} 
+                />
+                
+                {/* useReducer Route - Complex state logic approach */}
+                <Route 
+                    path="useReducer" 
+                    element={<BillingUseReducer />} 
+                />
+                
+                {/* Redux Route - Global state management approach */}
+                <Route 
+                    path="redux" 
+                    element={<BillingRedux />} 
+                />
+            </Routes>
+        </ProjectMethodLayout>
+    );
+};
+
+// Export component as default export for use in main App routing
+export default BillingPage;
+
+==============================================
+17. SRC/PAGES/BILLING/BILLINGUSESTATE.JSX
+==============================================
+
+// Import React library and useState hook for basic state management
+import React, { useState } from 'react';
+// Import custom notification context hook for showing user feedback
+import { useNotification } from '../../context/NotificationContext';
+
+/**
+ * BillingUseState Component
+ * Demonstrates billing/invoice management using useState hook
+ * 
+ * Key Concepts Demonstrated:
+ * 1. useState for managing multiple independent state variables
+ * 2. Form handling with multiple controlled inputs
+ * 3. Number input validation and type conversion
+ * 4. Array state updates with spread operator
+ * 5. Calculated values (total) derived from state
+ * 6. Input validation and error handling
+ * 
+ * Business Logic:
+ * - Add billing items with name and price
+ * - Calculate running total automatically
+ * - Validate inputs before adding items
+ * - Clear form after successful submission
+ */
+const BillingUseState = () => {
+    // useState for billing items array - stores all invoice items
+    const [items, setItems] = useState([]);
+    
+    // useState for form inputs - controlled components
+    const [name, setName] = useState('');
+    const [price, setPrice] = useState('');
+    
+    // Get notification function from context
+    const showNotification = useNotification();
+    
+    /**
+     * Function to add new billing item
+     * Includes validation for both name and price fields
+     */
+    const addItem = () => { 
+        // Input validation
+        const itemName = name.trim();
+        const itemPrice = parseFloat(price);
+        
+        // Check if name is provided and price is valid positive number
+        if (itemName && itemPrice > 0) { 
+            // Update items array using functional state update
+            setItems(currentItems => [
+                ...currentItems, 
+                { 
+                    id: Date.now(), // Simple ID generation
+                    name: itemName, 
+                    price: itemPrice,
+                    addedAt: new Date().toISOString() // Add timestamp
+                }
+            ]); 
+            
+            // Show success notification
+            showNotification(`${itemName} added to bill - $${itemPrice.toFixed(2)}`); 
+            
+            // Clear form inputs
+            setName(''); 
+            setPrice(''); 
+        } else {
+            // Show validation error
+            if (!itemName) {
+                showNotification('Please enter an item name!');
+            } else if (itemPrice <= 0) {
+                showNotification('Please enter a valid price greater than 0!');
+            }
+        }
+    };
+    
+    /**
+     * Function to remove item from bill
+     * Demonstrates array filtering for item removal
+     */
+    const removeItem = (itemId) => {
+        setItems(currentItems => 
+            currentItems.filter(item => item.id !== itemId)
+        );
+        showNotification('Item removed from bill');
+    };
+    
+    /**
+     * Function to clear entire bill
+     * Resets items array to empty state
+     */
+    const clearBill = () => {
+        if (items.length > 0) {
+            setItems([]);
+            showNotification('Bill cleared successfully!');
+        }
+    };
+    
+    /**
+     * Handle Enter key press for form submission
+     * Allows users to add items by pressing Enter
+     */
+    const handleKeyPress = (e) => {
+        if (e.key === 'Enter') {
+            addItem();
+        }
+    };
+    
+    // Calculated value - total bill amount
+    // Uses reduce to sum all item prices
+    const total = items.reduce((accumulator, item) => accumulator + item.price, 0);
+    
+    // Calculate additional billing details
+    const subtotal = total;
+    const tax = total * 0.08; // 8% tax
+    const grandTotal = subtotal + tax;
+    
+    // JSX Return - Component Rendering
+    return (
+        <div className="container-fluid">
+            {/* Form Section - Add New Item */}
+            <div className="card mb-4">
+                <div className="card-header d-flex justify-content-between align-items-center">
+                    <h4 className="mb-0">Add Billing Item (useState)</h4>
+                    {/* Clear All Button */}
+                    {items.length > 0 && (
+                        <button 
+                            onClick={clearBill}
+                            className="btn btn-outline-danger btn-sm"
+                        >
+                            Clear Bill
+                        </button>
+                    )}
+                </div>
+                <div className="card-body">
+                    {/* Bootstrap Row for Form Layout */}
+                    <div className="row g-3 mb-3">
+                        {/* Item Name Input */}
+                        <div className="col-sm">
+                            <input 
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                onKeyPress={handleKeyPress}
+                                placeholder="Item name..." 
+                                className="form-control"
+                                type="text"
+                            />
+                        </div>
+                        
+                        {/* Price Input */}
+                        <div className="col-sm">
+                            <input 
+                                value={price}
+                                onChange={(e) => setPrice(e.target.value)}
+                                onKeyPress={handleKeyPress}
+                                type="number" 
+                                step="0.01"
+                                min="0"
+                                placeholder="Price ($)" 
+                                className="form-control"
+                            />
+                        </div>
+                        
+                        {/* Add Button */}
+                        <div className="col-sm-auto">
+                            <button 
+                                onClick={addItem} 
+                                className="btn btn-primary"
+                                disabled={!name.trim() || !price || parseFloat(price) <= 0}
+                            >
+                                Add Item
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            {/* Bill Display Section */}
+            <div className="card bg-light">
+                <div className="card-body">
+                    <h5 className="card-title">
+                        Current Bill ({items.length} items)
+                    </h5>
+                    
+                    {/* Items List */}
+                    <ul className="list-group list-group-flush">
+                        {/* Conditional Rendering - Show items or empty message */}
+                        {items.length > 0 ? (
+                            items.map(item => (
+                                <li 
+                                    key={item.id} 
+                                    className="list-group-item bg-transparent d-flex justify-content-between align-items-center"
+                                >
+                                    <div>
+                                        {/* Item Name */}
+                                        <span className="fw-medium">{item.name}</span>
+                                        {/* Item Metadata */}
+                                        <div className="small text-muted">
+                                            Added: {new Date(item.addedAt).toLocaleTimeString()}
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="d-flex align-items-center">
+                                        {/* Item Price */}
+                                        <span className="me-2">${item.price.toFixed(2)}</span>
+                                        
+                                        {/* Remove Button */}
+                                        <button
+                                            onClick={() => removeItem(item.id)}
+                                            className="btn btn-outline-danger btn-sm"
+                                            title="Remove item"
+                                        >
+                                            ✕
+                                        </button>
+                                    </div>
+                                </li>
+                            ))
+                        ) : (
+                            /* Empty State */
+                            <li className="list-group-item bg-transparent text-center text-muted py-4">
+                                No items in bill yet. Add items above to get started.
+                            </li>
+                        )}
+                    </ul>
+                    
+                    {/* Bill Summary */}
+                    {items.length > 0 && (
+                        <>
+                            <hr />
+                            <div className="row">
+                                <div className="col-md-6 offset-md-6">
+                                    {/* Subtotal */}
+                                    <div className="d-flex justify-content-between">
+                                        <span>Subtotal:</span>
+                                        <span>${subtotal.toFixed(2)}</span>
+                                    </div>
+                                    
+                                    {/* Tax */}
+                                    <div className="d-flex justify-content-between text-muted">
+                                        <span>Tax (8%):</span>
+                                        <span>${tax.toFixed(2)}</span>
+                                    </div>
+                                    
+                                    <hr />
+                                    
+                                    {/* Grand Total */}
+                                    <div className="d-flex justify-content-between fs-5 fw-bold">
+                                        <span>Total:</span>
+                                        <span>${grandTotal.toFixed(2)}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// Export component as default export for use in other parts of the application
+export default BillingUseState;
+
+==============================================
+18. SRC/PAGES/BILLING/BILLINGUSEREDUCER.JSX
+==============================================
+
+// Import React library with useReducer and useState hooks
+import React, { useReducer, useState } from 'react';
+// Import custom notification context hook for showing user feedback
+import { useNotification } from '../../context/NotificationContext';
+
+/**
+ * Billing Reducer Function
+ * Handles state transitions for billing items using reducer pattern
+ * 
+ * @param {Array} state - Current billing items array
+ * @param {Object} action - Action object with type and payload
+ * @returns {Array} - New billing items state
+ * 
+ * Reducer Pattern Benefits:
+ * - Centralized state logic
+ * - Predictable state updates
+ * - Easy to test and debug
+ * - Scalable for complex operations
+ */
+const billingReducer = (state, action) => {
+    switch (action.type) {
+        // ADD_ITEM action: Adds new billing item to the array
+        case 'ADD_ITEM':
+            // Return new array with existing items plus new item
+            return [...state, action.payload];
+        
+        // REMOVE_ITEM action: Removes item by ID
+        case 'REMOVE_ITEM':
+            return state.filter(item => item.id !== action.payload.id);
+        
+        // UPDATE_ITEM action: Updates existing item
+        case 'UPDATE_ITEM':
+            return state.map(item => 
+                item.id === action.payload.id 
+                    ? { ...item, ...action.payload.updates }
+                    : item
+            );
+        
+        // CLEAR_ITEMS action: Removes all items
+        case 'CLEAR_ITEMS':
+            return [];
+        
+        // APPLY_DISCOUNT action: Applies discount to specific item
+        case 'APPLY_DISCOUNT':
+            return state.map(item =>
+                item.id === action.payload.id
+                    ? { 
+                        ...item, 
+                        originalPrice: item.originalPrice || item.price,
+                        price: (item.originalPrice || item.price) * (1 - action.payload.discount)
+                      }
+                    : item
+            );
+        
+        // Default case: Return unchanged state
+        default:
+            return state;
+    }
+};
+
+/**
+ * BillingUseReducer Component
+ * Demonstrates billing/invoice management using useReducer hook
+ * 
+ * Key Concepts Demonstrated:
+ * 1. useReducer for managing complex billing operations
+ * 2. Action-based state updates with detailed payloads
+ * 3. Combining useReducer with useState for form inputs
+ * 4. Complex business logic handled by reducer
+ * 5. Multiple action types for different operations
+ * 
+ * useReducer Benefits:
+ * - Better for complex state logic
+ * - Multiple related state updates
+ * - Predictable state transitions
+ * - Easier testing of business logic
+ */
+const BillingUseReducer = () => {
+    // useReducer Hook Setup
+    // items: current state (array of billing items)
+    // dispatch: function to trigger state changes via actions
+    const [items, dispatch] = useReducer(billingReducer, []);
+    
+    // useState for form inputs - simple state that doesn't need reducer
+    const [name, setName] = useState('');
+    const [price, setPrice] = useState('');
+    
+    // Get notification function from context
+    const showNotification = useNotification();
+    
+    /**
+     * Function to add new billing item
+     * Dispatches ADD_ITEM action with validated data
+     */
+    const addItem = () => { 
+        // Input validation
+        const itemName = name.trim();
+        const itemPrice = parseFloat(price);
+        
+        if (itemName && itemPrice > 0) { 
+            // Dispatch action to reducer
+            dispatch({ 
+                type: 'ADD_ITEM', 
+                payload: { 
+                    id: Date.now(),
+                    name: itemName, 
+                    price: itemPrice,
+                    addedAt: new Date().toISOString(),
+                    category: 'general' // Additional metadata
+                } 
+            }); 
+            
+            // Show success notification
+            showNotification(`${itemName} added to bill - $${itemPrice.toFixed(2)}`); 
+            
+            // Clear form inputs
+            setName(''); 
+            setPrice(''); 
+        } else {
+            // Show validation error
+            if (!itemName) {
+                showNotification('Please enter an item name!');
+            } else if (itemPrice <= 0) {
+                showNotification('Please enter a valid price greater than 0!');
+            }
+        }
+    };
+    
+    /**
+     * Function to remove billing item
+     * Dispatches REMOVE_ITEM action
+     */
+    const removeItem = (itemId) => {
+        dispatch({
+            type: 'REMOVE_ITEM',
+            payload: { id: itemId }
+        });
+        showNotification('Item removed from bill');
+    };
+    
+    /**
+     * Function to clear all billing items
+     * Dispatches CLEAR_ITEMS action
+     */
+    const clearAllItems = () => {
+        if (items.length > 0) {
+            dispatch({ type: 'CLEAR_ITEMS' });
+            showNotification('All items cleared from bill');
+        }
+    };
+    
+    /**
+     * Function to apply discount to item
+     * Demonstrates complex business logic in reducer
+     */
+    const applyDiscount = (itemId, discountPercent) => {
+        dispatch({
+            type: 'APPLY_DISCOUNT',
+            payload: { 
+                id: itemId, 
+                discount: discountPercent / 100 
+            }
+        });
+        showNotification(`${discountPercent}% discount applied`);
+    };
+    
+    /**
+     * Handle Enter key press for form submission
+     */
+    const handleKeyPress = (e) => {
+        if (e.key === 'Enter') {
+            addItem();
+        }
+    };
+    
+    // Calculate billing totals using reduce
+    const subtotal = items.reduce((sum, item) => sum + item.price, 0);
+    const tax = subtotal * 0.08; // 8% tax
+    const grandTotal = subtotal + tax;
+    
+    // JSX Return - Component Rendering
+    return (
+        <div className="container-fluid">
+            {/* Form Section - Add New Item */}
+            <div className="card mb-4">
+                <div className="card-header d-flex justify-content-between align-items-center">
+                    <h4 className="mb-0">Add Billing Item (useReducer)</h4>
+                    {/* Clear All Button */}
+                    {items.length > 0 && (
+                        <button 
+                            onClick={clearAllItems}
+                            className="btn btn-outline-danger btn-sm"
+                        >
+                            Clear All
+                        </button>
+                    )}
+                </div>
+                <div className="card-body">
+                    {/* Bootstrap Row for Form Layout */}
+                    <div className="row g-3 mb-3">
+                        {/* Item Name Input */}
+                        <div className="col-sm">
+                            <input 
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                onKeyPress={handleKeyPress}
+                                placeholder="Item name..." 
+                                className="form-control"
+                                type="text"
+                            />
+                        </div>
+                        
+                        {/* Price Input */}
+                        <div className="col-sm">
+                            <input 
+                                value={price}
+                                onChange={(e) => setPrice(e.target.value)}
+                                onKeyPress={handleKeyPress}
+                                type="number" 
+                                step="0.01"
+                                min="0"
+                                placeholder="Price ($)" 
+                                className="form-control"
+                            />
+                        </div>
+                        
+                        {/* Add Button */}
+                        <div className="col-sm-auto">
+                            <button 
+                                onClick={addItem} 
+                                className="btn btn-primary"
+                                disabled={!name.trim() || !price || parseFloat(price) <= 0}
+                            >
+                                Add Item
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            {/* Bill Display Section */}
+            <div className="card bg-light">
+                <div className="card-body">
+                    <h5 className="card-title">
+                        Current Bill ({items.length} items)
+                    </h5>
+                    
+                    {/* Items List */}
+                    <ul className="list-group list-group-flush">
+                        {/* Conditional Rendering */}
+                        {items.length > 0 ? (
+                            items.map(item => (
+                                <li 
+                                    key={item.id} 
+                                    className="list-group-item bg-transparent"
+                                >
+                                    <div className="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            {/* Item Name */}
+                                            <span className="fw-medium">{item.name}</span>
+                                            
+                                            {/* Item Metadata */}
+                                            <div className="small text-muted">
+                                                Added: {new Date(item.addedAt).toLocaleTimeString()}
+                                                {item.originalPrice && (
+                                                    <span className="ms-2 text-success">
+                                                        (Discounted from ${item.originalPrice.toFixed(2)})
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="d-flex align-items-center">
+                                            {/* Item Price */}
+                                            <span className="me-2 fw-bold">
+                                                ${item.price.toFixed(2)}
+                                            </span>
+                                            
+                                            {/* Action Buttons */}
+                                            <div className="btn-group btn-group-sm">
+                                                {/* Apply 10% Discount */}
+                                                <button
+                                                    onClick={() => applyDiscount(item.id, 10)}
+                                                    className="btn btn-outline-success"
+                                                    title="Apply 10% discount"
+                                                    disabled={!!item.originalPrice}
+                                                >
+                                                    -10%
+                                                </button>
+                                                
+                                                {/* Remove Button */}
+                                                <button
+                                                    onClick={() => removeItem(item.id)}
+                                                    className="btn btn-outline-danger"
+                                                    title="Remove item"
+                                                >
+                                                    ✕
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                            ))
+                        ) : (
+                            /* Empty State */
+                            <li className="list-group-item bg-transparent text-center text-muted py-4">
+                                No items in bill yet. Add items above to get started.
+                            </li>
+                        )}
+                    </ul>
+                    
+                    {/* Bill Summary */}
+                    {items.length > 0 && (
+                        <>
+                            <hr />
+                            <div className="row">
+                                <div className="col-md-6 offset-md-6">
+                                    {/* Subtotal */}
+                                    <div className="d-flex justify-content-between">
+                                        <span>Subtotal:</span>
+                                        <span>${subtotal.toFixed(2)}</span>
+                                    </div>
+                                    
+                                    {/* Tax */}
+                                    <div className="d-flex justify-content-between text-muted">
+                                        <span>Tax (8%):</span>
+                                        <span>${tax.toFixed(2)}</span>
+                                    </div>
+                                    
+                                    <hr />
+                                    
+                                    {/* Grand Total */}
+                                    <div className="d-flex justify-content-between fs-5 fw-bold">
+                                        <span>Total:</span>
+                                        <span>${grandTotal.toFixed(2)}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// Export component as default export
+export default BillingUseReducer;
+
+==============================================
+19. SRC/PAGES/BILLING/BILLINGREDUX.JSX
+==============================================
+
+// Import React library and useState hook for local form state
+import React, { useState } from 'react';
+// Import Redux hooks for connecting component to global state
+import { useSelector, useDispatch } from 'react-redux';
+// Import action creators from billing slice for dispatching actions
+import { addItem, removeItem, clearItems, applyDiscount } from '../../store/billingSlice';
+// Import custom notification context hook for showing user feedback
+import { useNotification } from '../../context/NotificationContext';
+
+/**
+ * BillingRedux Component
+ * Demonstrates billing/invoice management using Redux Toolkit for global state management
+ * 
+ * Key Concepts Demonstrated:
+ * 1. Redux global state management with useSelector
+ * 2. Dispatching actions with useDispatch
+ * 3. Action creators from Redux Toolkit slices
+ * 4. Combining Redux (global state) with useState (local form state)
+ * 5. Complex business logic handled by Redux reducers
+ * 
+ * Redux Benefits for Billing:
+ * - Persist billing data across component unmounts
+ * - Share billing state with other components (e.g., summary view)
+ * - Centralized business logic for complex calculations
+ * - Time-travel debugging for financial operations
+ * - Audit trail of all billing actions
+ */
+const BillingRedux = () => {
+  // useSelector Hook - Extract billing items from Redux store
+  // This subscribes component to Redux store updates
+  const items = useSelector((state) => state.billing.items);
+  
+  // useDispatch Hook - Get dispatch function for sending actions
+  const reduxDispatch = useDispatch();
+  
+  // useState for form inputs - local component state
+  // Form data doesn't need to be global, so useState is appropriate
+  const [name, setName] = useState('');
+  const [price, setPrice] = useState('');
+  
+  // Get notification function from context
+  const showNotification = useNotification();
+  
+  /**
+   * Function to add new billing item
+   * Dispatches Redux action and shows user notification
+   */
+  const handleAddItem = () => { 
+    // Input validation
+    const itemName = name.trim();
+    const itemPrice = parseFloat(price);
+    
+    if (itemName && itemPrice > 0) { 
+      // Dispatch 'addItem' action to Redux store
+      reduxDispatch(addItem({ 
+        id: Date.now(),
+        name: itemName, 
+        price: itemPrice,
+        addedAt: new Date().toISOString(),
+        category: 'general'
+      })); 
+      
+      // Show success notification
+      showNotification(`${itemName} added to bill - $${itemPrice.toFixed(2)}`); 
+      
+      // Clear form inputs
+      setName(''); 
+      setPrice(''); 
+    } else {
+      // Show validation error
+      if (!itemName) {
+        showNotification('Please enter an item name!');
+      } else if (itemPrice <= 0) {
+        showNotification('Please enter a valid price greater than 0!');
+      }
+    }
+  };
+  
+  /**
+   * Function to remove billing item
+   * Dispatches removeItem action to Redux store
+   */
+  const handleRemoveItem = (itemId) => {
+    reduxDispatch(removeItem({ id: itemId }));
+    showNotification('Item removed from bill');
+  };
+  
+  /**
+   * Function to clear all billing items
+   * Dispatches clearItems action to Redux store
+   */
+  const handleClearAllItems = () => {
+    if (items.length > 0) {
+      reduxDispatch(clearItems());
+      showNotification('All items cleared from bill');
+    }
+  };
+  
+  /**
+   * Function to apply discount to item
+   * Dispatches applyDiscount action with business logic handled by Redux
+   */
+  const handleApplyDiscount = (itemId, discountPercent) => {
+    reduxDispatch(applyDiscount({ 
+      id: itemId, 
+      discount: discountPercent / 100 
+    }));
+    showNotification(`${discountPercent}% discount applied`);
+  };
+  
+  /**
+   * Handle Enter key press for form submission
+   */
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleAddItem();
+    }
+  };
+  
+  // Calculate billing totals - data comes from Redux store
+  const subtotal = items.reduce((sum, item) => sum + item.price, 0);
+  const tax = subtotal * 0.08; // 8% tax
+  const grandTotal = subtotal + tax;
+  
+  // JSX Return - Component Rendering
+  return (
+    <div className="container-fluid">
+      {/* Form Section - Add New Item */}
+      <div className="card mb-4">
+        <div className="card-header d-flex justify-content-between align-items-center">
+          <h4 className="mb-0">Add Billing Item (Redux)</h4>
+          {/* Clear All Button */}
+          {items.length > 0 && (
+            <button 
+              onClick={handleClearAllItems}
+              className="btn btn-outline-danger btn-sm"
+            >
+              Clear All
+            </button>
+          )}
+        </div>
+        <div className="card-body">
+          {/* Bootstrap Row for Form Layout */}
+          <div className="row g-3 mb-3">
+            {/* Item Name Input */}
+            <div className="col-sm">
+              <input 
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Item name..." 
+                className="form-control"
+                type="text"
+              />
+            </div>
+            
+            {/* Price Input */}
+            <div className="col-sm">
+              <input 
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                onKeyPress={handleKeyPress}
+                type="number" 
+                step="0.01"
+                min="0"
+                placeholder="Price ($)" 
+                className="form-control"
+              />
+            </div>
+            
+            {/* Add Button */}
+            <div className="col-sm-auto">
+              <button 
+                onClick={handleAddItem} 
+                className="btn btn-primary"
+                disabled={!name.trim() || !price || parseFloat(price) <= 0}
+              >
+                Add Item
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Bill Display Section */}
+      <div className="card bg-light">
+        <div className="card-body">
+          <h5 className="card-title">
+            Current Bill ({items.length} items)
+          </h5>
+          <small className="text-muted">
+            Data managed by Redux store - persists across component re-mounts
+          </small>
+          
+          {/* Items List - Data comes from Redux store */}
+          <ul className="list-group list-group-flush mt-3">
+            {/* Conditional Rendering */}
+            {items.length > 0 ? (
+              items.map(item => (
+                <li 
+                  key={item.id} 
+                  className="list-group-item bg-transparent"
+                >
+                  <div className="d-flex justify-content-between align-items-center">
+                    <div>
+                      {/* Item Name */}
+                      <span className="fw-medium">{item.name}</span>
+                      
+                      {/* Item Metadata */}
+                      <div className="small text-muted">
+                        Added: {new Date(item.addedAt).toLocaleTimeString()}
+                        {item.originalPrice && (
+                          <span className="ms-2 text-success">
+                            (Discounted from ${item.originalPrice.toFixed(2)})
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div className="d-flex align-items-center">
+                      {/* Item Price */}
+                      <span className="me-2 fw-bold">
+                        ${item.price.toFixed(2)}
+                      </span>
+                      
+                      {/* Action Buttons */}
+                      <div className="btn-group btn-group-sm">
+                        {/* Apply 10% Discount */}
+                        <button
+                          onClick={() => handleApplyDiscount(item.id, 10)}
+                          className="btn btn-outline-success"
+                          title="Apply 10% discount"
+                          disabled={!!item.originalPrice}
+                        >
+                          -10%
+                        </button>
+                        
+                        {/* Remove Button */}
+                        <button
+                          onClick={() => handleRemoveItem(item.id)}
+                          className="btn btn-outline-danger"
+                          title="Remove item"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              ))
+            ) : (
+              /* Empty State */
+              <li className="list-group-item bg-transparent text-center text-muted py-4">
+                <p>No items in bill yet. Add items above to get started.</p>
+                <small>This data is managed by Redux store</small>
+              </li>
+            )}
+          </ul>
+          
+          {/* Bill Summary */}
+          {items.length > 0 && (
+            <>
+              <hr />
+              <div className="row">
+                <div className="col-md-6 offset-md-6">
+                  {/* Subtotal */}
+                  <div className="d-flex justify-content-between">
+                    <span>Subtotal:</span>
+                    <span>${subtotal.toFixed(2)}</span>
+                  </div>
+                  
+                  {/* Tax */}
+                  <div className="d-flex justify-content-between text-muted">
+                    <span>Tax (8%):</span>
+                    <span>${tax.toFixed(2)}</span>
+                  </div>
+                  
+                  <hr />
+                  
+                  {/* Grand Total */}
+                  <div className="d-flex justify-content-between fs-5 fw-bold">
+                    <span>Total:</span>
+                    <span>${grandTotal.toFixed(2)}</span>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Export component as default export for use in other parts of the application
+export default BillingRedux;
+
+==============================================
+20. SRC/STORE/BILLINGSLICE.JSX - REDUX SLICE
+==============================================
+
+// Import createSlice from Redux Toolkit for creating Redux slice
+import { createSlice } from '@reduxjs/toolkit';
+
+/**
+ * Billing Slice - Redux Toolkit Slice for Billing/Invoice State Management
+ * 
+ * Redux Slice Concepts Demonstrated:
+ * 1. createSlice - Combines actions and reducers for billing operations
+ * 2. Immer integration - Simplifies immutable updates for complex billing logic
+ * 3. Auto-generated action creators for billing operations
+ * 4. Business logic encapsulation within reducers
+ * 5. Financial calculations and data transformations
+ * 
+ * Billing-Specific Features:
+ * - Item management (add, remove, update)
+ * - Discount application with original price tracking
+ * - Complex business logic for financial operations
+ * - Audit trail capabilities for billing changes
+ */
+const billingSlice = createSlice({
+  // Slice name - used to identify this slice in the Redux store
+  // Creates action types like 'billing/addItem', 'billing/removeItem'
+  name: 'billing',
+  
+  // Initial state for billing slice
+  // Structure: { items: [] } where items is array of billing item objects
+  initialState: { 
+    items: [],
+    // Additional billing metadata could be added here:
+    // invoiceNumber: null,
+    // customerInfo: {},
+    // totalDiscount: 0,
+    // taxRate: 0.08
+  },
+  
+  // Reducer functions - define how billing state updates in response to actions
+  reducers: {
+    /**
+     * Add billing item reducer
+     * Adds new item to the billing items array
+     * 
+     * @param {Object} state - Current billing state
+     * @param {Object} action - Action object with payload containing new billing item
+     */
+    addItem: (state, action) => {
+      // Immer allows direct mutation syntax (actually creates immutable update)
+      // Add item with additional billing metadata
+      state.items.push({
+        ...action.payload,
+        // Add billing-specific fields
+        addedAt: action.payload.addedAt || new Date().toISOString(),
+        category: action.payload.category || 'general',
+        taxable: action.payload.taxable !== false, // Default to taxable
+      });
+    },
+    
+    /**
+     * Remove billing item reducer
+     * Removes billing item by ID from the items array
+     * 
+     * @param {Object} state - Current billing state
+     * @param {Object} action - Action object with payload containing item ID to remove
+     */
+    removeItem: (state, action) => {
+      // Filter out the item with matching ID
+      state.items = state.items.filter(item => item.id !== action.payload.id);
+    },
+    
+    /**
+     * Update billing item reducer
+     * Updates existing billing item with new data
+     * 
+     * @param {Object} state - Current billing state
+     * @param {Object} action - Action object with payload: { id, updates }
+     */
+    updateItem: (state, action) => {
+      const itemIndex = state.items.findIndex(item => item.id === action.payload.id);
+      if (itemIndex !== -1) {
+        // Merge existing item data with updates
+        state.items[itemIndex] = { 
+          ...state.items[itemIndex], 
+          ...action.payload.updates,
+          updatedAt: new Date().toISOString()
+        };
+      }
+    },
+    
+    /**
+     * Apply discount reducer
+     * Applies percentage discount to specific billing item
+     * Preserves original price for audit purposes
+     * 
+     * @param {Object} state - Current billing state
+     * @param {Object} action - Action object with payload: { id, discount }
+     */
+    applyDiscount: (state, action) => {
+      const itemIndex = state.items.findIndex(item => item.id === action.payload.id);
+      if (itemIndex !== -1) {
+        const item = state.items[itemIndex];
+        
+        // Store original price if not already stored
+        if (!item.originalPrice) {
+          item.originalPrice = item.price;
+        }
+        
+        // Apply discount to current price (use original price as base)
+        const basePrice = item.originalPrice || item.price;
+        item.price = basePrice * (1 - action.payload.discount);
+        
+        // Add discount metadata
+        item.discountApplied = action.payload.discount;
+        item.discountedAt = new Date().toISOString();
+      }
+    },
+    
+    /**
+     * Remove discount reducer
+     * Restores item to original price before discount
+     * 
+     * @param {Object} state - Current billing state
+     * @param {Object} action - Action object with payload containing item ID
+     */
+    removeDiscount: (state, action) => {
+      const itemIndex = state.items.findIndex(item => item.id === action.payload.id);
+      if (itemIndex !== -1) {
+        const item = state.items[itemIndex];
+        
+        // Restore original price if discount was applied
+        if (item.originalPrice) {
+          item.price = item.originalPrice;
+          // Clean up discount-related fields
+          delete item.originalPrice;
+          delete item.discountApplied;
+          delete item.discountedAt;
+        }
+      }
+    },
+    
+    /**
+     * Clear all items reducer
+     * Removes all billing items from the array
+     * 
+     * @param {Object} state - Current billing state
+     */
+    clearItems: (state) => {
+      // Reset items array to empty
+      state.items = [];
+    },
+    
+    /**
+     * Set items reducer
+     * Replaces entire items array (useful for loading from saved invoice)
+     * 
+     * @param {Object} state - Current billing state
+     * @param {Object} action - Action object with payload containing new items array
+     */
+    setItems: (state, action) => {
+      state.items = action.payload;
+    },
+    
+    /**
+     * Bulk discount reducer
+     * Applies discount to all items in the bill
+     * 
+     * @param {Object} state - Current billing state
+     * @param {Object} action - Action object with payload containing discount percentage
+     */
+    applyBulkDiscount: (state, action) => {
+      state.items.forEach(item => {
+        // Store original price if not already stored
+        if (!item.originalPrice) {
+          item.originalPrice = item.price;
+        }
+        
+        // Apply discount
+        const basePrice = item.originalPrice || item.price;
+        item.price = basePrice * (1 - action.payload.discount);
+        item.discountApplied = action.payload.discount;
+        item.discountedAt = new Date().toISOString();
+      });
+    }
+  },
+});
+
+// Export action creators
+// These are automatically generated by createSlice based on reducer names
+export const { 
+  addItem, 
+  removeItem, 
+  updateItem, 
+  applyDiscount, 
+  removeDiscount, 
+  clearItems, 
+  setItems, 
+  applyBulkDiscount 
+} = billingSlice.actions;
+
+// Export reducer function
+// This will be used in store configuration to combine with other reducers
+export default billingSlice.reducer;
+
+==============================================
+21. CSS FILES
+==============================================
+
+/* SRC/APP.CSS */
+/* Most content commented out - using Bootstrap instead */
+
+/* SRC/INDEX.CSS */
+/* Custom global styles are commented out - using Bootstrap instead */
+
+==============================================
+22. INSTALLATION AND SETUP COMMANDS
+==============================================
+
+# Create project
+npm create vite@latest react-frontend-demo -- --template react
+
+# Navigate to project
+cd react-frontend-demo
+
+# Install dependencies
+npm install
+
+# Install additional packages
+npm install @reduxjs/toolkit react-redux react-router-dom bootstrap
+
+# Start development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
+
+# Run linting
+npm run lint
+
+==============================================
+23. KEY CONCEPTS DEMONSTRATED
+==============================================
+
+REACT HOOKS:
+- useState: Simple state management
+- useReducer: Complex state logic
+- useContext: Context consumption
+- useEffect: Side effects and cleanup
+
+STATE MANAGEMENT PATTERNS:
+- Local State (useState)
+- Reducer Pattern (useReducer)
+- Global State (Redux Toolkit)
+- Context API (useContext)
+
+REACT ROUTER:
+- BrowserRouter: HTML5 routing
+- Routes & Route: Route configuration
+- NavLink: Navigation with active states
+- Nested routing: Multi-level routes
+
+REDUX TOOLKIT:
+- configureStore: Store creation
+- createSlice: Reducer + actions
+- useSelector: State access
+- useDispatch: Action dispatch
+
+JAVASCRIPT ES6+:
+- Arrow functions
+- Destructuring
+- Spread operator
+- Template literals
+- Array methods (map, filter, reduce, find)
+
+UI/UX:
+- Bootstrap 5 integration
+- Responsive design
+- Form handling
+- Conditional rendering
+- Component composition
+
+==============================================
+24. LEARNING OUTCOMES
+==============================================
+
+After studying this project, students will understand:
+
+1. When to use different state management approaches
+2. How to structure a React application
+3. Component design patterns and reusability
+4. Form handling and validation techniques
+5. Routing and navigation in SPAs
+6. Redux for global state management
+7. Context API for cross-component communication
+8. Modern JavaScript features and best practices
+9. Bootstrap integration for responsive design
+10. Project structure and organization
+
+==============================================
+25. ASSIGNMENT SUBMISSION NOTES
+==============================================
+
+This project demonstrates:
+✅ React functional components
+✅ Modern React hooks (useState, useReducer, useContext, useEffect)
+✅ State management patterns comparison
+✅ Redux Toolkit implementation
+✅ React Router for navigation
+✅ Form handling and validation
+✅ Bootstrap for responsive UI
+✅ Component reusability and composition
+✅ JavaScript ES6+ features
+✅ Clean code practices and documentation
+
+Project Location: Dabhoi, Gujarat, India
+Development Date: July 2025
+Framework: React 19.1.0 with Vite 7.0.4
+State Management: useState, useReducer, Redux Toolkit
+Styling: Bootstrap 5.3.7
+Routing: React Router DOM 7.7.1
+
+==============================================
+END OF PROJECT CODE DOCUMENTATION
+==============================================

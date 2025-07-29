@@ -24,23 +24,23 @@ const blogReducer = (state, action) => {
             // Return new array with existing posts plus new post
             // Spread operator ensures immutability
             return [...state, action.payload];
-        
+
         // DELETE_POST action: Removes post by ID
         case 'DELETE_POST':
             return state.filter(post => post.id !== action.payload.id);
-        
+
         // UPDATE_POST action: Updates existing post
         case 'UPDATE_POST':
-            return state.map(post => 
-                post.id === action.payload.id 
+            return state.map(post =>
+                post.id === action.payload.id
                     ? { ...post, ...action.payload.updates }
                     : post
             );
-        
+
         // CLEAR_POSTS action: Removes all posts
         case 'CLEAR_POSTS':
             return [];
-        
+
         // Default case: Return unchanged state for unknown actions
         default:
             return state;
@@ -68,43 +68,59 @@ const BlogUseReducer = () => {
     // dispatch: function to trigger state changes via actions
     const [posts, dispatch] = useReducer(
         blogReducer, // Reducer function
-        [{ id: 1, title: 'First Post (useReducer)' }] // Initial state
+        [
+            { 
+                id: 1, 
+                title: 'First Post (useReducer)', 
+                content: 'This is a sample blog post content using useReducer.', 
+                category: 'Technology' 
+            }
+        ] // Initial state
     );
-    
-    // useState for form input - simple state that doesn't need reducer
+
+    // useState for form inputs - simple state that doesn't need reducer
     // This demonstrates combining useReducer with useState appropriately
     const [title, setTitle] = useState('');
-    
+    const [content, setContent] = useState('');
+    const [category, setCategory] = useState('');
+
+    // Available categories for the dropdown
+    const categories = ['Technology', 'Lifestyle', 'Business', 'Health', 'Education', 'Entertainment'];
+
     // Get notification function from context
     const showNotification = useNotification();
-    
+
     /**
      * Function to add new blog post
      * Dispatches ADD_POST action to reducer
      */
-    const handleAddPost = () => { 
+    const handleAddPost = () => {
         // Input validation
-        if (title.trim()) { 
+        if (title.trim() && content.trim() && category) {
             // Dispatch action to reducer with type and payload
-            dispatch({ 
-                type: 'ADD_POST', 
-                payload: { 
+            dispatch({
+                type: 'ADD_POST',
+                payload: {
                     id: Date.now(), // Simple ID generation
                     title: title.trim(),
+                    content: content.trim(),
+                    category: category,
                     createdAt: new Date().toISOString() // Add timestamp
-                } 
-            }); 
-            
+                }
+            });
+
             // Show success notification
-            showNotification('Post added successfully!'); 
-            
-            // Clear form input
-            setTitle(''); 
+            showNotification('Post added successfully!');
+
+            // Clear form inputs
+            setTitle('');
+            setContent('');
+            setCategory('');
         } else {
-            showNotification('Please enter a post title!');
+            showNotification('Please fill in all fields (title, content, and category)!');
         }
     };
-    
+
     /**
      * Function to delete a blog post
      * Demonstrates DELETE_POST action
@@ -116,7 +132,7 @@ const BlogUseReducer = () => {
         });
         showNotification('Post deleted successfully!');
     };
-    
+
     /**
      * Function to clear all posts
      * Demonstrates CLEAR_POSTS action
@@ -127,7 +143,7 @@ const BlogUseReducer = () => {
             showNotification('All posts cleared!');
         }
     };
-    
+
     /**
      * Handle Enter key press for form submission
      */
@@ -136,7 +152,7 @@ const BlogUseReducer = () => {
             handleAddPost();
         }
     };
-    
+
     // JSX Return - Component Rendering
     return (
         <div className="container-fluid">
@@ -146,7 +162,7 @@ const BlogUseReducer = () => {
                     <h4 className="mb-0">Add New Blog Post (useReducer)</h4>
                     {/* Clear All Button */}
                     {posts.length > 0 && (
-                        <button 
+                        <button
                             onClick={handleClearAllPosts}
                             className="btn btn-outline-danger btn-sm"
                         >
@@ -155,30 +171,60 @@ const BlogUseReducer = () => {
                     )}
                 </div>
                 <div className="card-body">
-                    {/* Bootstrap Input Group */}
-                    <div className="input-group mb-3">
-                        {/* Controlled Input */}
-                        <input 
+                    {/* Title Input */}
+                    <div className="mb-3">
+                        <label htmlFor="title" className="form-label">Post Title</label>
+                        <input
+                            id="title"
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
                             onKeyPress={handleKeyPress}
-                            placeholder="Enter post title..." 
+                            placeholder="Enter post title..."
                             className="form-control"
                             type="text"
                         />
-                        
-                        {/* Submit Button */}
-                        <button 
-                            onClick={handleAddPost} 
-                            className="btn btn-primary"
-                            disabled={!title.trim()}
-                        >
-                            Add Post
-                        </button>
                     </div>
+
+                    {/* Category Dropdown */}
+                    <div className="mb-3">
+                        <label htmlFor="category" className="form-label">Category</label>
+                        <select
+                            id="category"
+                            value={category}
+                            onChange={(e) => setCategory(e.target.value)}
+                            className="form-select"
+                        >
+                            <option value="">Select a category...</option>
+                            {categories.map(cat => (
+                                <option key={cat} value={cat}>{cat}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    {/* Content Textarea */}
+                    <div className="mb-3">
+                        <label htmlFor="content" className="form-label">Content</label>
+                        <textarea
+                            id="content"
+                            value={content}
+                            onChange={(e) => setContent(e.target.value)}
+                            placeholder="Enter post content..."
+                            className="form-control"
+                            rows="4"
+                        />
+                    </div>
+
+                    {/* Submit Button */}
+                    <button
+                        onClick={handleAddPost}
+                        className="btn btn-primary w-100"
+                        disabled={!title.trim() || !content.trim() || !category}
+                    >
+                        Add Post
+                    </button>
                 </div>
             </div>
-            
+
             {/* Posts Display Section */}
             <div className="card">
                 <div className="card-header">
@@ -187,38 +233,41 @@ const BlogUseReducer = () => {
                 <div className="card-body">
                     {/* Conditional Rendering */}
                     {posts.length > 0 ? (
-                        <ul className="list-group list-group-flush">
+                        <div className="row">
                             {/* Map through posts to render each one */}
                             {posts.map(post => (
-                                <li 
-                                    key={post.id}
-                                    className="list-group-item d-flex justify-content-between align-items-center"
-                                >
-                                    <div>
-                                        {/* Post Title */}
-                                        <span className="fw-medium">{post.title}</span>
-                                        {/* Post Metadata */}
-                                        <div className="small text-muted">
-                                            ID: {post.id}
-                                            {post.createdAt && (
-                                                <span className="ms-2">
-                                                    Created: {new Date(post.createdAt).toLocaleString()}
-                                                </span>
-                                            )}
+                                <div key={post.id} className="col-md-6 mb-3">
+                                    <div className="card h-100">
+                                        <div className="card-header d-flex justify-content-between align-items-center">
+                                            <h5 className="card-title mb-0">{post.title}</h5>
+                                            <div>
+                                                <span className="badge bg-primary me-2">{post.category}</span>
+                                                <button
+                                                    onClick={() => handleDeletePost(post.id)}
+                                                    className="btn btn-outline-danger btn-sm"
+                                                    title="Delete post"
+                                                >
+                                                    ✕
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div className="card-body">
+                                            <p className="card-text">{post.content}</p>
+                                        </div>
+                                        <div className="card-footer">
+                                            <small className="text-muted">
+                                                ID: {post.id}
+                                                {post.createdAt && (
+                                                    <span className="ms-2">
+                                                        Created: {new Date(post.createdAt).toLocaleString()}
+                                                    </span>
+                                                )}
+                                            </small>
                                         </div>
                                     </div>
-                                    
-                                    {/* Delete Button */}
-                                    <button
-                                        onClick={() => handleDeletePost(post.id)}
-                                        className="btn btn-outline-danger btn-sm"
-                                        title="Delete post"
-                                    >
-                                        ✕
-                                    </button>
-                                </li>
+                                </div>
                             ))}
-                        </ul>
+                        </div>
                     ) : (
                         /* Empty State */
                         <div className="text-center text-muted py-4">

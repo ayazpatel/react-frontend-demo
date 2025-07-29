@@ -30,6 +30,8 @@ const blogSlice = createSlice({
       { 
         id: 1, 
         title: 'First Post (from Redux)',
+        content: 'This is a sample blog post content using Redux.',
+        category: 'Technology',
         createdAt: new Date().toISOString()
       }
     ]
